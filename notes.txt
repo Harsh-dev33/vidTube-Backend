@@ -1,0 +1,2 @@
+mongoose has methods custom ones too
+middleware pre post and manymore
