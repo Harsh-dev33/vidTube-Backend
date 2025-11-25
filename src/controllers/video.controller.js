@@ -1,10 +1,10 @@
-import mongoose, {isValidObjectId} from "mongoose"
-import {Video} from "../models/video.model.js"
-import {User} from "../models/user.model.js"
-import {ApiError} from "../utils/ApiError.js"
-import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/asyncHandler.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import mongoose, { isValidObjectId } from "mongoose"
+import { Video } from "../models/video.model.js"
+import { User } from "../models/user.model.js"
+import { ApiError } from "../utils/ApiError.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
+import { uploadOnCloudinary } from "../utils/Cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -13,13 +13,44 @@ const getAllVideos = asyncHandler(async (req, res) => {
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
-    const { title, description} = req.body
+    const { title, description } = req.body;
+
+    if (!title || !description) {
+        throw new ApiError(400, "Title and Description are required")
+    }
     // TODO: get video, upload to cloudinary, create video
+
+    const videoFileLocalPath = req.files?.videoFile?.[0]?.path;
+    const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
+
+    if (!videoFileLocalPath || !thumbnailLocalPath) {
+        throw new ApiError(400, "Both video file and thumbnail are required");
+    }
+
+    let video, thumbnail;
+
+    try {
+        const uploadPromises = [
+            uploadOnCloudinary(videoFileLocalPath),
+            thumbnailLocalPath ? uploadOnCloudinary(thumbnailLocalPath) : null,
+        ];
+
+        // Run both uploads together
+        const [videoFileRes, ThumbnailRes] = await Promise.all(uploadPromises);
+
+        video = videoFileRes;
+        thumbnail = ThumbnailRes;
+    } catch (error) {
+        console.log("Error uploading files:", error);
+        throw new ApiError(500, "Error uploading video");
+    }
+
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
+
 })
 
 const updateVideo = asyncHandler(async (req, res) => {

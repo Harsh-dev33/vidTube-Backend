@@ -12,9 +12,9 @@ import {
   getWatchHistory,
   getCurrentUser,
 } from "../controllers/user.controller.js";
-import { upload } from "../middlewares/multer.middlewares.js";
+import { upload } from "../middlewares/multer.middleware.js";
 import fs from "fs";
-import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
